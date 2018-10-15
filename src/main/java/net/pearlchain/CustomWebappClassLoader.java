@@ -33,7 +33,7 @@ public class CustomWebappClassLoader extends WebappClassLoaderBase {
     private static final Log log = LogFactory.getLog(CustomWebappClassLoader.class);
     private static String CLASSPATH_FILENAME;
     private static String PATH_SEPARATOR = "/";
-    private static String PROPERTIES_FILENAME = "calsspath.properties";
+    private static String PROPERTIES_FILENAME = "classpath.properties";
 
     public CustomWebappClassLoader() {
         super();
@@ -58,7 +58,7 @@ public class CustomWebappClassLoader extends WebappClassLoaderBase {
         try (FileReader fileReader = new FileReader(sj.toString())) {
             properties.load(fileReader);
         } catch (IOException e) {
-            log.warn("Can't read classpath dependency properties file" + e.getCause());
+            throw new RuntimeException("Error occurred while reading classpath dependency properties file", e);
         }
         CLASSPATH_FILENAME = properties.getProperty("classpath.dependencies.filename");
     }
@@ -80,18 +80,19 @@ public class CustomWebappClassLoader extends WebappClassLoaderBase {
                         (path, attr) -> path.getFileName().toString().equals(CLASSPATH_FILENAME))) {
                     return stream.findAny().get();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException("Error occurred while reading classpath file", e);
                 }
-                return null;
             }
 
             private String readClasspathFile(Path filepath) {
                 String fileAsString = null;
+                if (filepath == null) {
+                    return null;
+                }
                 try (Stream<String> lines = Files.lines(filepath, Charset.defaultCharset())) {
                     fileAsString = lines.collect(Collectors.joining(" "));
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    log.error("Exception occurred while read classpath dependencies file: " + e.getCause());
+                    throw new RuntimeException("Error occurred while read classpath dependencies file: ", e);
                 }
                 return fileAsString;
             }
@@ -122,6 +123,7 @@ public class CustomWebappClassLoader extends WebappClassLoaderBase {
                 WebResource[] webResourcesOriginal = resources.listResources(path);
                 WebResource[] result = null;
 
+                // TODO: 2018-10-15 check path and ignore others
                 if (webResourcesOriginal != null && webResourcesOriginal.length > 0) {
                     Path classpathFilePath = findClasspathFilePath();
                     String fileAsString = readClasspathFile(classpathFilePath);
