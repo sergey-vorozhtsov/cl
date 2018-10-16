@@ -14,7 +14,7 @@ And we have options to place it in:
 
 1a tomcat config
 
-    "apache-tomcat-9.0.12\conf\context.xml"
+    "apache-tomcat\conf\context.xml"
     
 Which will be applied for all webapps, including system ones like "manager".
 
@@ -30,13 +30,13 @@ And only this webapp will be affected.
 
 # 2. Put classloader.jar into lib directory
 
-    "apache-tomcat-9.0.12\lib\"
+    "apache-tomcat\lib\"
 
 catalina.jar is here for example.
 
 # 3. Put calsspath.properties into conf directory
 
-    "\apache-tomcat-9.0.12\conf\" 
+    "apache-tomcat\conf\" 
 
 other tomcat properties placed here too.
 
@@ -73,6 +73,6 @@ This command will generate classpath deendencies, put into a file, into dir:
     'target\classes'
 which will be unpacked to:
 
-    'tomcat\webapps\{projectname}\WEB_INF\classes' 
+    'apache-tomcat\webapps\{projectname}\WEB_INF\classes' 
     
 in the tomcat server
