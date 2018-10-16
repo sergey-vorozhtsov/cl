@@ -10,7 +10,7 @@ We need to point tomcat to custom classLoader like this:
         <Loader className="org.apache.catalina.loader.WebappLoader" loaderClass="net.pearlchain.CustomWebappClassLoader"/>
     </Context>
     
-And we have option to place it in:
+And we have options to place it in:
 
 1a tomcat config
 
