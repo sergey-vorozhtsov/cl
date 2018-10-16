@@ -21,6 +21,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -106,32 +109,41 @@ public class CustomWebappClassLoader extends WebappClassLoaderBase {
                     return null;
                 }
 
-                WebResource[] result = new WebResource[resources.length];
-                int k = 0;
-                for (int i = 0; i < jarNamesOrder.length; i++) {
-                    String jarName = jarNamesOrder[i];
-                    for (int j = 0; j < resources.length; j++) {
-                        WebResource resource = resources[j];
-                        if (resource != null && jarName != null) {
-                            if (jarName.equalsIgnoreCase(resource.getName())) {
-                                result[k] = resource;
-                                jarNamesOrder[i] = null;
-                                resources[j] = null;
-                                k++;
-                            }
+                List<WebResource> webResources = new ArrayList<>(Arrays.asList(resources));
+                List<String> jarNameOrderList = new ArrayList<>(Arrays.asList(jarNamesOrder));
+                List<WebResource> webResourcesSorted = new ArrayList<>();
+
+                for (Iterator<String> jarNameIterator = jarNameOrderList.iterator(); jarNameIterator.hasNext(); ) {
+                    String jarName = jarNameIterator.next();
+                    for (Iterator<WebResource> resourceIterator = webResources.iterator(); resourceIterator.hasNext(); ) {
+                        WebResource webResource = resourceIterator.next();
+                        if (jarName.equalsIgnoreCase(webResource.getName())) {
+                            webResourcesSorted.add(webResource);
+                            jarNameIterator.remove();
+                            resourceIterator.remove();
                         }
                     }
                 }
 
-                if (resources.length >= jarNamesOrder.length) {
-                    for (int i = 0; i < resources.length; i++) {
-                            if (resources[i] != null) {
-                                result[i] = resources[i];
-                            }
+                if (jarNameOrderList.size() > 0) {
+                    StringJoiner stringJoiner = new StringJoiner("; ");
+                    for (String jarName : jarNameOrderList) {
+                        stringJoiner.add(jarName);
                     }
-                } else {
-                    log.warn("Count of jars less than expected");
+                    log.info("Following jars not found (probably with \"provided\" scope): " + stringJoiner.toString());
                 }
+
+                if (webResources.size() > 0) {
+                    StringJoiner stringJoiner = new StringJoiner("; ");
+                    for (WebResource webResource : webResources) {
+                        stringJoiner.add(webResource.getName());
+                        webResourcesSorted.add(webResource);
+                    }
+                    log.warn("Following jars not needed but found: " + stringJoiner.toString());
+                }
+
+                WebResource[] result = new WebResource[webResourcesSorted.size()];
+                webResourcesSorted.toArray(result);
                 return result;
             }
 
