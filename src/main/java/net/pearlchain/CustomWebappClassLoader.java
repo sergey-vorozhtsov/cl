@@ -105,15 +105,32 @@ public class CustomWebappClassLoader extends WebappClassLoaderBase {
                     log.warn("Can't sort resources - null or zero length of classpath dependencies");
                     return null;
                 }
+
                 WebResource[] result = new WebResource[resources.length];
                 int k = 0;
-                for (String jarName : jarNamesOrder) {
-                    for (WebResource resource : resources) {
-                        if (jarName.equalsIgnoreCase(resource.getName())) {
-                            result[k] = resource;
-                            k++;
+                for (int i = 0; i < jarNamesOrder.length; i++) {
+                    String jarName = jarNamesOrder[i];
+                    for (int j = 0; j < resources.length; j++) {
+                        WebResource resource = resources[j];
+                        if (resource != null && jarName != null) {
+                            if (jarName.equalsIgnoreCase(resource.getName())) {
+                                result[k] = resource;
+                                jarNamesOrder[i] = null;
+                                resources[j] = null;
+                                k++;
+                            }
                         }
                     }
+                }
+
+                if (resources.length >= jarNamesOrder.length) {
+                    for (int i = 0; i < resources.length; i++) {
+                            if (resources[i] != null) {
+                                result[i] = resources[i];
+                            }
+                    }
+                } else {
+                    log.warn("Count of jars less than expected");
                 }
                 return result;
             }
@@ -123,8 +140,7 @@ public class CustomWebappClassLoader extends WebappClassLoaderBase {
                 WebResource[] webResourcesOriginal = resources.listResources(path);
                 WebResource[] result = null;
 
-                // TODO: 2018-10-15 check path and ignore others
-                if (webResourcesOriginal != null && webResourcesOriginal.length > 0) {
+                if (webResourcesOriginal != null && webResourcesOriginal.length > 0 && path.equalsIgnoreCase("/WEB-INF/lib")) {
                     Path classpathFilePath = findClasspathFilePath();
                     String fileAsString = readClasspathFile(classpathFilePath);
 
