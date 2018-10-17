@@ -43,8 +43,19 @@ public class CustomWebappClassLoader extends WebappClassLoaderBase {
     }
 
     @Override
-    public ClassLoader copyWithoutTransformers() {
-        return null;
+    public CustomWebappClassLoader copyWithoutTransformers() {
+
+        CustomWebappClassLoader result = new CustomWebappClassLoader(getParent());
+
+        super.copyStateWithoutTransformers(result);
+
+        try {
+            result.start();
+        } catch (LifecycleException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return result;
     }
 
     @Override
