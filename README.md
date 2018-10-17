@@ -14,7 +14,7 @@ And we have options to place it in:
 
 1a tomcat config
 
-    "apache-tomcat\conf\context.xml"
+    apache-tomcat\conf\context.xml
     
 Which will be applied for all webapps, including system ones like "manager".
 
@@ -24,13 +24,13 @@ Which will be applied for all webapps, including system ones like "manager".
     
 Which will be placed after deploy to:
 
-    apache-tomcat\webapps\{projectname}\META-INF\context.xml"
+    apache-tomcat\webapps\{projectname}\META-INF\context.xml
 
 And only this webapp will be affected.
 
 # 2. Put classloader.jar into lib directory
 
-    "apache-tomcat\lib\"
+    apache-tomcat\lib\
 
 catalina.jar is here for example.
 
@@ -58,9 +58,9 @@ catalina.jar is here for example.
 
 This command will generate classpath dependencies, put into a file, into dir:
 
-    'target\classes'
+    target\classes\
 which will be unpacked to:
 
-    'apache-tomcat\webapps\{projectname}\WEB_INF\classes' 
+    apache-tomcat\webapps\{projectname}\WEB_INF\classes\ 
     
 in the tomcat server
