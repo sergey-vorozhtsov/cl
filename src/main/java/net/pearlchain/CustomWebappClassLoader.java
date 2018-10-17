@@ -13,7 +13,6 @@ import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -26,7 +25,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -34,36 +32,14 @@ import java.util.stream.Stream;
 
 public class CustomWebappClassLoader extends WebappClassLoaderBase {
     private static final Log log = LogFactory.getLog(CustomWebappClassLoader.class);
-    private static String CLASSPATH_FILENAME;
-    private static String PATH_SEPARATOR = "/";
-    private static String PROPERTIES_FILENAME = "classpath.properties";
+    private static final String CLASSPATH_FILENAME = "dependency-classpath.txt";
 
     public CustomWebappClassLoader() {
         super();
-        readProperties();
     }
 
     public CustomWebappClassLoader(ClassLoader parent) {
         super(parent);
-        readProperties();
-    }
-
-    private void readProperties() {
-        String filepath = Objects.requireNonNull(this.getClass().getClassLoader().getResource(".")).getFile();
-        File file = new File(filepath);
-        String tomcatHome = file.getParent();
-        StringJoiner sj = new StringJoiner(PATH_SEPARATOR);
-        sj.add(tomcatHome);
-        sj.add("conf");
-        sj.add(PROPERTIES_FILENAME);
-
-        Properties properties = new Properties();
-        try (FileReader fileReader = new FileReader(sj.toString())) {
-            properties.load(fileReader);
-        } catch (IOException e) {
-            throw new RuntimeException("Error occurred while reading classpath dependency properties file", e);
-        }
-        CLASSPATH_FILENAME = properties.getProperty("classpath.dependencies.filename");
     }
 
     @Override
@@ -88,7 +64,7 @@ public class CustomWebappClassLoader extends WebappClassLoaderBase {
             }
 
             private String readClasspathFile(Path filepath) {
-                String fileAsString = null;
+                String fileAsString;
                 if (filepath == null) {
                     return null;
                 }
